@@ -1,0 +1,21 @@
+# Secrets
+.env
+.env.*
+*.local.js
+*.local.ts
+serviceAccount*.json
+*credentials*.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# PM internal
+pm/reviews/
+
+# Node
+node_modules/

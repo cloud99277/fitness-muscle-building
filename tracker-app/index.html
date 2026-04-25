@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="165/50 零基础增肌进度追踪工具 — 体重、训练、饮食、复盘一站式管理">
+  <title>💪 增肌追踪</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App 主内容区 -->
+  <div id="app-content" class="page active">
+    <!-- 由 JS 动态渲染 -->
+  </div>
+
+  <!-- 底部导航栏 -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="dashboard" onclick="App.navigate('dashboard')">
+      <span class="nav-icon">📊</span>
+      <span>仪表盘</span>
+    </button>
+    <button class="nav-item" data-page="weight" onclick="App.navigate('weight')">
+      <span class="nav-icon">⚖️</span>
+      <span>体重</span>
+    </button>
+    <button class="nav-item" data-page="training" onclick="App.navigate('training')">
+      <span class="nav-icon">🏋️</span>
+      <span>训练</span>
+    </button>
+    <button class="nav-item" data-page="more" onclick="App.navigate('more')">
+      <span class="nav-icon">⚙️</span>
+      <span>更多</span>
+    </button>
+  </nav>
+
+  <!-- Modal 弹窗层 -->
+  <div id="modal-overlay" class="modal-overlay">
+    <div id="modal-content" class="modal">
+      <!-- 由 JS 动态渲染 -->
+    </div>
+  </div>
+
+  <!-- Toast 通知 -->
+  <div id="toast" class="toast"></div>
+
+  <!-- 脚本加载（顺序关键：store → components → app） -->
+  <script src="store.js"></script>
+  <script src="components.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
