@@ -36,6 +36,21 @@ const DEFAULT_TEMPLATES = {
         { name: '哑铃提踵', defaultSets: 3, defaultReps: '15-20', muscle: '小腿' },
         { name: '平板支撑', defaultSets: 3, defaultReps: '30-60秒', muscle: '核心' },
         { name: '卷腹', defaultSets: 3, defaultReps: '15-20', muscle: '腹直肌' }
+    ],
+    // ---- 轨道 B: V4 健身房极简分化 ----
+    // 训练日A — 下肢前侧 + 上肢推
+    GA: [
+        { name: '倒蹬机 Leg Press', defaultSets: 3, defaultReps: '10-12', muscle: '股四臀' },
+        { name: '器械胸推 Chest Press', defaultSets: 3, defaultReps: '10-12', muscle: '胸三头' },
+        { name: '高位下拉 Lat Pulldown', defaultSets: 3, defaultReps: '10-12', muscle: '背阔' },
+        { name: '平板支撑 Plank', defaultSets: 3, defaultReps: '30-60秒', muscle: '核心' }
+    ],
+    // 训练日B — 下肢后侧 + 上肢拉
+    GB: [
+        { name: '器械腿弯举 Leg Curl', defaultSets: 3, defaultReps: '10-12', muscle: '腘绳肌' },
+        { name: '罗马椅挺身 Hyperextension', defaultSets: 3, defaultReps: '12-15', muscle: '竖脊臀' },
+        { name: '坐姿划船 Seated Row', defaultSets: 3, defaultReps: '10-12', muscle: '中背' },
+        { name: '臀桥 Glute Bridge', defaultSets: 3, defaultReps: '15-20', muscle: '臀PC肌' }
     ]
 };
 
@@ -153,6 +168,13 @@ const Store = {
         if (!this._data.profile) this._data.profile = { ...DEFAULT_PROFILE };
         if (!this._data.trainingTemplates) {
             this._data.trainingTemplates = JSON.parse(JSON.stringify(DEFAULT_TEMPLATES));
+        } else {
+            // V4 升级补丁：旧数据可能缺少 GA/GB 模板
+            Object.keys(DEFAULT_TEMPLATES).forEach(key => {
+                if (!this._data.trainingTemplates[key]) {
+                    this._data.trainingTemplates[key] = JSON.parse(JSON.stringify(DEFAULT_TEMPLATES[key]));
+                }
+            });
         }
     },
 

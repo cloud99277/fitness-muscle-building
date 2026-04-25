@@ -13,8 +13,8 @@ const Components = {
         return `
       <div class="login-page">
         <div class="login-logo">💪</div>
-        <div class="login-title" style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">增肌追踪 V2</div>
-        <div class="login-subtitle">多设备同步 · 实时数据 · 高级视觉</div>
+        <div class="login-title" style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">身体管理 V4</div>
+        <div class="login-subtitle">全栈健康追踪 · 多设备同步 · 科学量化</div>
         ${isFirebaseReady ? `
           <button class="btn btn-login btn-full" onclick="App.login()" style="max-width:280px">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20" alt="">
@@ -61,12 +61,22 @@ const Components = {
         const proteinClass = proteinDays >= 5 ? 'success' : proteinDays >= 3 ? 'warning' : '';
         const reviewClass = hasReview ? 'success' : '';
 
+        // V4 新增指标
+        const avgSleep = Store.getAvgSleepThisWeek();
+        const habitScore = Store.getHabitScoreThisWeek();
+        const kegelStreak = Store.getKegelStreak();
+        const today = new Date().toISOString().split('T')[0];
+        const todayHydra = Store.getHydrationLog().find(h => h.date === today);
+        const waterL = todayHydra ? todayHydra.liters : 0;
+
+        const sleepClass = avgSleep !== null ? (avgSleep >= 7.5 ? 'success' : avgSleep >= 6.5 ? 'warning' : '') : '';
+        const habitClass = habitScore >= 80 ? 'success' : habitScore >= 50 ? 'warning' : '';
+
         // 趋势图
         const weights = Store.getWeightLog().slice(-7);
         const chartHTML = weights.length > 0 ? this._renderBarChart(weights, 'weight') : '';
 
         // 今日体重提示
-        const today = new Date().toISOString().split('T')[0];
         const todayW = Store.getWeightLog().find(w => w.date === today);
         const prompt = !todayW ? `<div class="glass-card" style="border-color:rgba(245,158,11,0.3)"><span>⚖️ 今日体重未记录</span></div>` : '';
 
@@ -74,7 +84,7 @@ const Components = {
       <div class="page-header">
         <div class="title-group">
           <span class="emoji">💪</span>
-          <h1>增肌追踪</h1>
+          <h1>身体管理</h1>
         </div>
         ${Animations.renderSyncBadge(syncStatus)}
       </div>
@@ -106,11 +116,35 @@ const Components = {
         </div>
       </div>
 
+      <div class="stats-grid">
+        <div class="stat-card ${sleepClass}">
+          <span class="stat-emoji">🌙</span>
+          <span class="stat-value">${avgSleep !== null ? avgSleep + 'h' : '—'}</span>
+          <span class="stat-label">平均睡眠</span>
+        </div>
+        <div class="stat-card ${habitClass}">
+          <span class="stat-emoji">✅</span>
+          <span class="stat-value">${habitScore}%</span>
+          <span class="stat-label">习惯达标</span>
+        </div>
+        <div class="stat-card ${waterL >= 2.0 ? 'success' : ''}">
+          <span class="stat-emoji">💧</span>
+          <span class="stat-value">${waterL > 0 ? waterL + 'L' : '—'}</span>
+          <span class="stat-label">今日饮水</span>
+        </div>
+      </div>
+
+      ${kegelStreak > 0 ? `<div class="glass-card" style="display:flex;align-items:center;gap:var(--s-md);border-color:rgba(16,185,129,0.3)"><span style="font-size:1.5rem">🧘</span><div><div class="fw-bold">凯格尔 🔥 连续 ${kegelStreak} 天</div><div class="text-secondary" style="font-size:0.8rem">保持每日3组打卡</div></div></div>` : ''}
+
       ${chartHTML ? `<div class="glass-card"><div class="card-title">📊 体重趋势</div>${chartHTML}</div>` : ''}
 
       <div class="quick-actions">
         <button class="btn btn-primary" onclick="App.showWeightModal()">⚖️ 记录体重</button>
         <button class="btn btn-secondary" onclick="App.navigate('training')">🏋️ 记录训练</button>
+      </div>
+      <div class="quick-actions">
+        <button class="btn btn-secondary" onclick="App.showSleepModal()">🌙 记录睡眠</button>
+        <button class="btn btn-secondary" onclick="App.showHydrationModal()">💧 记录饮水</button>
       </div>
     `;
     },
@@ -150,7 +184,7 @@ const Components = {
     renderTraining() {
         const today = new Date().toISOString().split('T')[0];
         const todayLog = Store.getTrainingLog().find(t => t.date === today);
-        const typeDescs = { A: '胸肩三头+腿', B: '背二头+后链', C: '全身综合' };
+        const typeDescs = { A: '推 胸肩三头', B: '拉 背二头', C: '腿+核心', GA: '下肢前+推', GB: '下肢后+拉' };
 
         const recent = [...Store.getTrainingLog()].reverse().slice(0, 10);
         const histHTML = recent.length > 0 ? `<div class="glass-card" style="padding:0;overflow:hidden"><div style="padding:var(--s-md);padding-bottom:0"><div class="card-title">最近训练</div></div><ul class="record-list">${recent.map(t => {
@@ -160,9 +194,13 @@ const Components = {
 
         return `
       <div class="page-header"><div class="title-group"><span class="emoji">🏋️</span><h1>训练记录</h1></div></div>
-      <div class="card-title mb-sm">选择训练类型</div>
+      <div class="card-title mb-sm">🏠 居家哑铃（轨道A）</div>
       <div class="type-selector">
         ${['A', 'B', 'C'].map(t => `<button class="type-btn" onclick="App.startTraining('${t}')"><span class="type-label">${t}</span><span class="type-desc">${typeDescs[t]}</span></button>`).join('')}
+      </div>
+      <div class="card-title mb-sm mt-md">🏋️ 健身房极简（轨道B）</div>
+      <div class="type-selector" style="grid-template-columns:1fr 1fr">
+        ${['GA', 'GB'].map(t => `<button class="type-btn" onclick="App.startTraining('${t}')"><span class="type-label">${t.replace('G','')}</span><span class="type-desc">${typeDescs[t]}</span></button>`).join('')}
       </div>
       ${todayLog ? `<div class="glass-card" style="border-color:rgba(16,185,129,0.3)">✅ 今天已完成训练 ${todayLog.type}</div>` : ''}
       ${histHTML}
@@ -172,7 +210,7 @@ const Components = {
     renderTrainingForm(type) {
         const templates = Store.getTemplates();
         const exercises = templates[type] || [];
-        const typeDescs = { A: '胸肩三头+腿', B: '背二头+后链', C: '全身综合' };
+        const typeDescs = { A: '推 胸肩三头', B: '拉 背二头', C: '腿+核心', GA: '下肢前+推', GB: '下肢后+拉' };
 
         const exHTML = exercises.map((ex, ei) => {
             const prev = Store.getLastTrainingForExercise(ex.name);
