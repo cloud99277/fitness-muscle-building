@@ -47,15 +47,15 @@
 
 | 项 | 值 |
 |---|---|
-| 本地 commits | 5 笔（a64338d → 4281ae6） |
-| 远程 | ❌ 未推送（GitHub API TLS 超时） |
+| 本地 commits | 7 笔（a64338d → 9db2f52） |
+| 远程 | ✅ 已推送 github.com/cloud99277/fitness-muscle-building |
 | 推送命令 | `gh repo create fitness-muscle-building --public --source=. --push --description '全栈身体管理系统 V4'` |
 
 ## 阻塞点
 
 | 阻塞 | 状态 | 清障方案 |
 |---|---|---|
-| GitHub push 超时 | ⚠️ 活跃 | 等网络恢复后手动执行推送命令 |
+| GitHub push 超时 | ✅ 已解决 | 2026-04-26 推送成功 |
 
 ## Sprint 4 — 已完成
 
