@@ -426,6 +426,17 @@ const Store = {
         return +avg.toFixed(1);
     },
 
+    getSleepDaysOnTargetThisWeek() {
+        const week = this.getSleepThisWeek();
+        return week.filter(s => s.beforeDeadline && s.duration >= 7.5).length;
+    },
+
+    getDetoxDaysThisWeek() {
+        // 戒断天数 = 睡眠达标天数（23:30前入睡 ≈ 数字戒断）
+        return this.getSleepDaysOnTargetThisWeek();
+    },
+
+
     // ============================================================
     // V4: 凯格尔追踪
     // ============================================================
@@ -461,6 +472,11 @@ const Store = {
             else break;
         }
         return streak;
+    },
+
+    getKegelDaysThisWeek() {
+        const mondayStr = this._getMondayStr();
+        return this._data.kegelLog.filter(k => k.date >= mondayStr && k.completed).length;
     },
 
     // ============================================================

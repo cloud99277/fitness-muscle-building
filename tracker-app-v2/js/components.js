@@ -277,18 +277,26 @@ const Components = {
         const wc = Store.getWeightChangeThisWeek();
         const streak = Store.getConsecutiveReviewWeeks();
         const hasR = Store.hasReviewThisWeek();
+        const sleepDays = Store.getSleepDaysOnTargetThisWeek();
+        const kegelDays = Store.getKegelDaysThisWeek();
+        const detoxDays = Store.getDetoxDaysThisWeek();
 
         const reviews = [...Store.getWeeklyReviews()].reverse().slice(0, 8);
-        const hist = reviews.length > 0 ? `<div class="card-title mt-lg mb-sm">历史复盘</div><ul class="record-list">${reviews.map(r => `<li class="record-item"><span class="record-date">${this._fmtDate(r.weekOf)} 周</span><span class="text-secondary">训练${r.trainingSessions}次 · 蛋白${r.proteinDaysOnTarget}天${r.weightChange !== null ? ` · ${r.weightChange >= 0 ? '+' : ''}${r.weightChange}kg` : ''}</span></li>`).join('')}</ul>` : '';
+        const hist = reviews.length > 0 ? `<div class="card-title mt-lg mb-sm">历史复盘</div><ul class="record-list">${reviews.map(r => `<li class="record-item"><span class="record-date">${this._fmtDate(r.weekOf)} 周</span><span class="text-secondary">训练${r.trainingSessions}次 · 蛋白${r.proteinDaysOnTarget}天${r.sleepDaysOnTarget !== undefined ? ` · 睡眠${r.sleepDaysOnTarget}天` : ''}${r.kegelDays !== undefined ? ` · 凯格尔${r.kegelDays}天` : ''}${r.weightChange !== null ? ` · ${r.weightChange >= 0 ? '+' : ''}${r.weightChange}kg` : ''}</span></li>`).join('')}</ul>` : '';
 
         if (hasR) return `<div class="page-header"><div class="title-group"><span class="emoji">📋</span><h1>周复盘</h1></div></div><div class="glass-card" style="border-color:rgba(16,185,129,0.3);text-align:center;padding:var(--s-2xl)"><span style="font-size:3rem;display:block;margin-bottom:8px">✅</span><div class="fw-bold" style="font-size:1.1rem">本周复盘已完成！</div>${streak > 0 ? `<div class="text-success mt-sm">🔥 连续 ${streak} 周</div>` : ''}</div>${hist}<button class="btn btn-secondary btn-full mt-lg" onclick="App.navigate('more')">← 返回</button>`;
 
         return `
       <div class="page-header"><div class="title-group"><span class="emoji">📋</span><h1>周复盘</h1></div></div>
-      <p class="text-secondary mb-md">每周花 5 分钟回顾</p>
+      <p class="text-secondary mb-md">每周花 5 分钟回顾，覆盖 6 个维度</p>
+      <div class="card-title mb-sm" style="font-size:0.85rem;color:var(--text-secondary)">💪 训练与营养</div>
       <div class="review-check"><span class="check-icon">${train >= 3 ? '✅' : '⚠️'}</span><div class="check-text"><div>本周训练 3 次？</div><div class="check-value">${train}/3</div></div></div>
       <div class="review-check"><span class="check-icon">${protein >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>蛋白质达标？</div><div class="check-value">${protein}/7 天</div></div></div>
       <div class="review-check"><span class="check-icon">📊</span><div class="check-text"><div>体重变化</div><div class="check-value">${wc !== null ? `${wc >= 0 ? '+' : ''}${wc}kg` : '数据不足'}</div></div></div>
+      <div class="card-title mt-md mb-sm" style="font-size:0.85rem;color:var(--text-secondary)">🌙 作息与健康</div>
+      <div class="review-check"><span class="check-icon">${sleepDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>睡眠达标？(23:30前+≥7.5h)</div><div class="check-value">${sleepDays}/7 天</div></div></div>
+      <div class="review-check"><span class="check-icon">${kegelDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>凯格尔打卡？(≥3组/天)</div><div class="check-value">${kegelDays}/7 天</div></div></div>
+      <div class="review-check"><span class="check-icon">${detoxDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>数字戒断？(=睡眠达标)</div><div class="check-value">${detoxDays}/7 天</div></div></div>
       <div class="form-group mt-lg"><label class="form-label">备注</label><input type="text" class="form-input" id="review-notes" placeholder="本周经验总结"></div>
       <button class="btn btn-primary btn-full mt-md" onclick="App.submitReview()">✅ 提交复盘</button>
       ${hist}

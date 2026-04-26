@@ -217,6 +217,9 @@ const App = {
             trainingSessions: Store.getTrainingThisWeek().length,
             proteinDaysOnTarget: Store.getProteinDaysThisWeek(),
             weightChange: Store.getWeightChangeThisWeek(),
+            sleepDaysOnTarget: Store.getSleepDaysOnTargetThisWeek(),
+            kegelDays: Store.getKegelDaysThisWeek(),
+            detoxDays: Store.getDetoxDaysThisWeek(),
             notes: document.getElementById('review-notes')?.value || ''
         };
         await Store.addWeeklyReview(review);
