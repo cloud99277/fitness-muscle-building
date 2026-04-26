@@ -9,13 +9,13 @@
  */
 
 const firebaseConfig = (typeof FIREBASE_CONFIG !== 'undefined') ? FIREBASE_CONFIG : {
-    apiKey: "REDACTED_API_KEY",
-    authDomain: "REDACTED_AUTH_DOMAIN",
-    databaseURL: "REDACTED_DATABASE_URL",
-    projectId: "REDACTED_PROJECT_ID",
-    storageBucket: "REDACTED_PROJECT_ID.firebasestorage.app",
-    messagingSenderId: "REDACTED_SENDER_ID",
-    appId: "1:REDACTED_SENDER_ID:web:placeholder"
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    storageBucket: ".firebasestorage.app",
+    messagingSenderId: "",
+    appId: "1::web:placeholder"
 };
 
 // 初始化 Firebase
@@ -25,7 +25,7 @@ let isFirebaseReady = false;
 function initFirebase() {
     try {
         // 检查配置是否已填写
-        if (firebaseConfig.apiKey.startsWith("REDACTED")) {
+        if (firebaseConfig.apiKey === "") {
             console.warn('⚠️ Firebase 配置未填写，将使用离线模式（localStorage）');
             return false;
         }

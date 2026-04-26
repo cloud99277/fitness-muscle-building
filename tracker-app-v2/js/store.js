@@ -569,7 +569,7 @@ const Store = {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `muscle-tracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+        a.download = `body-management-v4-backup-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
