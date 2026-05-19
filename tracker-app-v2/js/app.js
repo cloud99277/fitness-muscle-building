@@ -1,5 +1,5 @@
 /**
- * app.js — V4 主程序
+ * app.js — V4.1 主程序
  */
 
 const App = {
@@ -149,9 +149,10 @@ const App = {
     async saveTraining(type) {
         const date = document.getElementById('training-date').value;
         const notes = document.getElementById('training-notes').value;
+        const isDowngrade = !!document.getElementById('training-downgrade')?.checked;
         const templates = Store.getTemplates();
         const exercises = templates[type] || [];
-        const record = { date, type, exercises: [], notes };
+        const record = { date, type, mode: isDowngrade ? 'downgrade' : 'full', exercises: [], notes };
         let hasData = false;
 
         exercises.forEach((ex, ei) => {
@@ -166,7 +167,7 @@ const App = {
 
         if (!hasData) { this.toast('请至少填一组数据', 'error'); return; }
         await Store.addTraining(record);
-        this.toast(`✅ 训练 ${type} 已保存！`, 'success');
+        this.toast(`✅ 训练 ${type}${isDowngrade ? ' 降级版' : ''} 已保存！`, 'success');
         this.navigate('dashboard');
     },
 
@@ -183,8 +184,8 @@ const App = {
         if (!date || isNaN(cal) || isNaN(pro)) { this.toast('请填写完整', 'error'); return; }
         await Store.addNutrition(date, cal, pro);
         this.closeModal();
-        const ok = cal >= 2300 && pro >= 90;
-        this.toast(ok ? '✅ 今日达标！' : '📝 已记录', ok ? 'success' : '');
+        const ok = cal >= V41_TARGETS.foundationCalories && pro >= V41_TARGETS.foundationProtein;
+        this.toast(ok ? '✅ 基础修复达标！' : '📝 已记录', ok ? 'success' : '');
         this._render();
     },
 
@@ -287,10 +288,10 @@ const App = {
         await Store.addSleep(date, bedTime, wakeTime);
         this.closeModal();
         const entry = Store.getSleepLog().find(s => s.date === date);
-        const msg = entry && entry.beforeDeadline && entry.duration >= 7.5
+        const msg = entry && entry.beforeDeadline && entry.duration >= V41_TARGETS.sleepHours
             ? `✅ ${entry.duration}h 达标！`
             : `📝 已记录 ${entry ? entry.duration : ''}h`;
-        this.toast(msg, entry && entry.beforeDeadline && entry.duration >= 7.5 ? 'success' : '');
+        this.toast(msg, entry && entry.beforeDeadline && entry.duration >= V41_TARGETS.sleepHours ? 'success' : '');
         this._render();
     },
 

@@ -1,5 +1,5 @@
 /**
- * store.js — V4 数据层
+ * store.js — V4.1 数据层
  * 
  * 双模式：Firebase 实时同步 / localStorage 离线降级
  * API 接口与 V1/V2 兼容
@@ -7,6 +7,17 @@
  */
 
 const STORAGE_KEY = 'muscle-tracker-v2-data';
+
+const V41_TARGETS = {
+    foundationCalories: 2000,
+    foundationProtein: 75,
+    normalCalories: 2300,
+    normalProtein: 100,
+    sleepHours: 7,
+    sleepStretchHours: 7.5,
+    sleepDeadline: '23:30',
+    hydrationLiters: 2.0
+};
 
 const DEFAULT_TEMPLATES = {
     // V3 居家版：推（胸+肩+三头）
@@ -327,7 +338,7 @@ const Store = {
     },
 
     async addNutrition(date, calories, protein) {
-        const onTarget = calories >= 2300 && protein >= 90;
+        const onTarget = calories >= V41_TARGETS.foundationCalories && protein >= V41_TARGETS.foundationProtein;
         const log = this._data.nutritionLog;
         const idx = log.findIndex(n => n.date === date);
         if (idx >= 0) {
@@ -340,7 +351,11 @@ const Store = {
 
     getProteinDaysThisWeek() {
         const mondayStr = this._getMondayStr();
-        return this._data.nutritionLog.filter(n => n.date >= mondayStr && n.onTarget).length;
+        return this._data.nutritionLog.filter(n =>
+            n.date >= mondayStr &&
+            n.calories >= V41_TARGETS.foundationCalories &&
+            n.protein >= V41_TARGETS.foundationProtein
+        ).length;
     },
 
     // ============================================================
@@ -400,7 +415,7 @@ const Store = {
         const beforeDeadline = bh < 23 || (bh === 23 && bm <= 30);
 
         // 质量自动评级
-        const quality = duration >= 7.5 ? 'good' : duration >= 6.5 ? 'fair' : 'poor';
+        const quality = duration >= V41_TARGETS.sleepStretchHours ? 'good' : duration >= V41_TARGETS.sleepHours ? 'fair' : 'poor';
 
         const entry = { date, bedTime, wakeTime, duration, quality, beforeDeadline };
 
@@ -428,7 +443,7 @@ const Store = {
 
     getSleepDaysOnTargetThisWeek() {
         const week = this.getSleepThisWeek();
-        return week.filter(s => s.beforeDeadline && s.duration >= 7.5).length;
+        return week.filter(s => s.beforeDeadline && s.duration >= V41_TARGETS.sleepHours).length;
     },
 
     getDetoxDaysThisWeek() {
@@ -514,11 +529,11 @@ const Store = {
 
         // 饮水：当日 hydrationLog 中 liters >= 2.0
         const waterEntry = this._data.hydrationLog.find(h => h.date === date);
-        const water = waterEntry ? waterEntry.liters >= 2.0 : false;
+        const water = waterEntry ? waterEntry.liters >= V41_TARGETS.hydrationLiters : false;
 
-        // 蛋白质：当日 nutritionLog 中 protein >= 75 (适应期标准)
+        // 蛋白质：当日 nutritionLog 中 protein >= 75 (V4.1 基础修复期标准)
         const nutEntry = this._data.nutritionLog.find(n => n.date === date);
-        const protein = nutEntry ? nutEntry.protein >= 75 : false;
+        const protein = nutEntry ? nutEntry.protein >= V41_TARGETS.foundationProtein : false;
 
         // 戒断：无自动推导数据源，默认 false（需手动打卡）
         // 存储在 sleepLog 的 beforeDeadline 间接推导（23:30前入睡 ≈ 执行了数字戒断）

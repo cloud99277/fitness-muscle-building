@@ -1,5 +1,5 @@
 /**
- * components.js — V4 所有 UI 组件
+ * components.js — V4.1 所有 UI 组件
  * 双区设计：展示区 Glassmorphism / 操作区高对比度
  * V4 新增：睡眠追踪 / 习惯打卡 / 凯格尔 / 水合
  */
@@ -13,8 +13,8 @@ const Components = {
         return `
       <div class="login-page">
         <div class="login-logo">💪</div>
-        <div class="login-title" style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">身体管理 V4</div>
-        <div class="login-subtitle">全栈健康追踪 · 多设备同步 · 科学量化</div>
+        <div class="login-title" style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">身体管理 V4.1</div>
+        <div class="login-subtitle">基础修复 · 降级训练 · 科学追踪</div>
         ${isFirebaseReady ? `
           <button class="btn btn-login btn-full" onclick="App.login()" style="max-width:280px">
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20" height="20" alt="">
@@ -69,7 +69,7 @@ const Components = {
         const todayHydra = Store.getHydrationLog().find(h => h.date === today);
         const waterL = todayHydra ? todayHydra.liters : 0;
 
-        const sleepClass = avgSleep !== null ? (avgSleep >= 7.5 ? 'success' : avgSleep >= 6.5 ? 'warning' : '') : '';
+        const sleepClass = avgSleep !== null ? (avgSleep >= V41_TARGETS.sleepStretchHours ? 'success' : avgSleep >= V41_TARGETS.sleepHours ? 'warning' : '') : '';
         const habitClass = habitScore >= 80 ? 'success' : habitScore >= 50 ? 'warning' : '';
 
         // 趋势图
@@ -107,7 +107,7 @@ const Components = {
         <div class="stat-card ${proteinClass}">
           <span class="stat-emoji">🥩</span>
           <span class="stat-value">${proteinDays}/7</span>
-          <span class="stat-label">蛋白达标</span>
+          <span class="stat-label">基础蛋白</span>
         </div>
         <div class="stat-card ${reviewClass}">
           <span class="stat-emoji">📋</span>
@@ -189,7 +189,7 @@ const Components = {
         const recent = [...Store.getTrainingLog()].reverse().slice(0, 10);
         const histHTML = recent.length > 0 ? `<div class="glass-card" style="padding:0;overflow:hidden"><div style="padding:var(--s-md);padding-bottom:0"><div class="card-title">最近训练</div></div><ul class="record-list">${recent.map(t => {
             const sets = t.exercises.reduce((s, e) => s + (e.sets ? e.sets.length : 0), 0);
-            return `<li class="record-item"><span><span class="record-value" style="font-size:1rem">训练 ${t.type}</span><span class="record-date" style="display:block">${this._fmtDate(t.date)}</span></span><span class="text-secondary">${sets} 组</span></li>`;
+            return `<li class="record-item"><span><span class="record-value" style="font-size:1rem">训练 ${t.type}${t.mode === 'downgrade' ? ' · 降级版' : ''}</span><span class="record-date" style="display:block">${this._fmtDate(t.date)}</span></span><span class="text-secondary">${sets} 组</span></li>`;
         }).join('')}</ul></div>` : '';
 
         return `
@@ -224,8 +224,16 @@ const Components = {
 
         return `
       <div class="page-header"><div class="title-group"><span class="emoji">🏋️</span><h1>训练 ${type}</h1></div></div>
+      <div class="glass-card" style="border-color:rgba(245,158,11,0.24)">
+        <div class="card-title">V4.1 高压力日规则</div>
+        <div class="text-secondary" style="font-size:0.85rem">睡眠不足或脑力高消耗时，保留习惯，改做 20-30 分钟降级版。</div>
+      </div>
       <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="training-date" value="${new Date().toISOString().split('T')[0]}"></div>
       ${exHTML}
+      <label class="checkbox-row mt-md">
+        <input type="checkbox" id="training-downgrade">
+        <span>今天执行降级训练（睡眠不足 / 高压力日）</span>
+      </label>
       <div class="form-group mt-lg"><label class="form-label">备注（可选）</label><input type="text" class="form-input" id="training-notes" placeholder="今天状态如何？"></div>
       <div class="quick-actions mt-lg"><button class="btn btn-secondary" onclick="App.navigate('training')">取消</button><button class="btn btn-primary" onclick="App.saveTraining('${type}')">✅ 完成训练</button></div>
     `;
@@ -245,7 +253,7 @@ const Components = {
       ${isOnline ? `<div class="glass-card" style="display:flex;align-items:center;gap:var(--s-md)"><div style="width:40px;height:40px;border-radius:50%;background:var(--gradient);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem">${(user.displayName || 'U')[0]}</div><div><div class="fw-bold">${user.displayName || '用户'}</div><div class="text-secondary" style="font-size:0.8rem">${user.email || ''}</div></div></div>` : ''}
       <ul class="menu-list">
         <li class="menu-item" onclick="App.showSleepModal()"><span class="menu-emoji">🌙</span><div class="menu-text"><h3>记录睡眠</h3><p>入睡/起床时间</p></div><span class="menu-arrow">›</span></li>
-        <li class="menu-item" onclick="App.showNutritionModal()"><span class="menu-emoji">🍽️</span><div class="menu-text"><h3>记录饮食</h3><p>热量 + 蛋白质</p></div><span class="menu-arrow">›</span></li>
+        <li class="menu-item" onclick="App.showNutritionModal()"><span class="menu-emoji">🍽️</span><div class="menu-text"><h3>记录饮食</h3><p>基础期 2000kcal + 75g 蛋白</p></div><span class="menu-arrow">›</span></li>
         <li class="menu-item" onclick="App.showHydrationModal()"><span class="menu-emoji">💧</span><div class="menu-text"><h3>记录饮水</h3><p>目标 2-2.5L/天</p></div><span class="menu-arrow">›</span></li>
         <li class="menu-item" onclick="App.showKegelModal()"><span class="menu-emoji">🧘</span><div class="menu-text"><h3>凯格尔训练</h3><p>${Store.getKegelStreak() > 0 ? `🔥 连续 ${Store.getKegelStreak()} 天` : '今日未打卡'}</p></div><span class="menu-arrow">›</span></li>
         <li class="menu-item" onclick="App.navigate('habits')"><span class="menu-emoji">✅</span><div class="menu-text"><h3>习惯打卡</h3><p>每日 5 项健康习惯</p></div><span class="menu-arrow">›</span></li>
@@ -291,10 +299,10 @@ const Components = {
       <p class="text-secondary mb-md">每周花 5 分钟回顾，覆盖 6 个维度</p>
       <div class="card-title mb-sm" style="font-size:0.85rem;color:var(--text-secondary)">💪 训练与营养</div>
       <div class="review-check"><span class="check-icon">${train >= 3 ? '✅' : '⚠️'}</span><div class="check-text"><div>本周训练 3 次？</div><div class="check-value">${train}/3</div></div></div>
-      <div class="review-check"><span class="check-icon">${protein >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>蛋白质达标？</div><div class="check-value">${protein}/7 天</div></div></div>
+      <div class="review-check"><span class="check-icon">${protein >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>基础蛋白达标？(≥75g)</div><div class="check-value">${protein}/7 天</div></div></div>
       <div class="review-check"><span class="check-icon">📊</span><div class="check-text"><div>体重变化</div><div class="check-value">${wc !== null ? `${wc >= 0 ? '+' : ''}${wc}kg` : '数据不足'}</div></div></div>
       <div class="card-title mt-md mb-sm" style="font-size:0.85rem;color:var(--text-secondary)">🌙 作息与健康</div>
-      <div class="review-check"><span class="check-icon">${sleepDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>睡眠达标？(23:30前+≥7.5h)</div><div class="check-value">${sleepDays}/7 天</div></div></div>
+      <div class="review-check"><span class="check-icon">${sleepDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>睡眠达标？(23:30前+≥7h)</div><div class="check-value">${sleepDays}/7 天</div></div></div>
       <div class="review-check"><span class="check-icon">${kegelDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>凯格尔打卡？(≥3组/天)</div><div class="check-value">${kegelDays}/7 天</div></div></div>
       <div class="review-check"><span class="check-icon">${detoxDays >= 5 ? '✅' : '⚠️'}</span><div class="check-text"><div>数字戒断？(=睡眠达标)</div><div class="check-value">${detoxDays}/7 天</div></div></div>
       <div class="form-group mt-lg"><label class="form-label">备注</label><input type="text" class="form-input" id="review-notes" placeholder="本周经验总结"></div>
@@ -311,9 +319,10 @@ const Components = {
         return `
       <div class="page-header"><div class="title-group"><span class="emoji">🔧</span><h1>问题诊断</h1></div></div>
       <p class="text-secondary mb-md">遇到障碍不代表失败</p>
-      <div class="glass-card"><div class="card-title">🍽️ 体重停滞</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">1. 查平均热量<br>2. < 2300 → <strong>加 1 杯牛奶 + 1 蛋</strong><br>3. ≥ 2300 → 训练加重量了吗？<br>4. 没加 → <strong>下次 +1-2.5kg</strong><br>5. 加了 → <strong>再等 2 周</strong></div></div>
-      <div class="glass-card"><div class="card-title">💪 力量停滞</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">1. 睡够 7h？<br>2. 训练前吃了碳水？<br>3. 动作变形？→ <strong>降 10%</strong><br>4. 间隔够 48h？</div></div>
+      <div class="glass-card"><div class="card-title">🍽️ 体重停滞</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">1. 先看基础期是否达标<br>2. < 2000 kcal 或蛋白 < 75g → <strong>先补饮食</strong><br>3. 正常期仍不涨 → 热量推到 2300+<br>4. 训练没进步 → <strong>下次 +1-2.5kg 或加次数</strong><br>5. 连续 3 周不变 → 复盘睡眠和消化</div></div>
+      <div class="glass-card"><div class="card-title">💪 力量停滞</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">1. 睡够 7h？<br>2. 训练前吃了碳水？<br>3. 高压力日？→ <strong>做降级训练</strong><br>4. 动作变形？→ <strong>降 10%</strong><br>5. 间隔够 48h？</div></div>
       <div class="glass-card"><div class="card-title">🤕 肌肉酸痛</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">• 24-48h → <strong class="text-success">正常</strong><br>• 超 4 天 → <strong class="text-warning">训练量大</strong><br>• 关节刺痛 → <strong class="text-danger">⚠️ 停练就医</strong></div></div>
+      <div class="glass-card"><div class="card-title">🩺 性功能/不适边界</div><div class="text-secondary" style="font-size:0.85rem;line-height:1.8">长期困扰、勃起困难、疼痛、尿路症状、明显焦虑，或自我训练 8-12 周无改善 → <strong>优先男科/泌尿外科评估</strong></div></div>
       <button class="btn btn-secondary btn-full mt-lg" onclick="App.navigate('more')">← 返回</button>
     `;
     },
@@ -336,8 +345,8 @@ const Components = {
         const tLog = Store.getNutritionLog().find(n => n.date === today);
         return `<div class="modal-title">🍽️ 记录饮食<button class="modal-close" onclick="App.closeModal()">×</button></div>
       <div class="form-group"><label class="form-label">日期</label><input type="date" class="form-input" id="nut-date" value="${today}"></div>
-      <div class="form-row"><div class="form-group"><label class="form-label">热量（大卡）</label><input type="number" class="form-input" id="nut-cal" placeholder="目标 2400" value="${tLog ? tLog.calories : ''}" inputmode="numeric"></div><div class="form-group"><label class="form-label">蛋白质（g）</label><input type="number" class="form-input" id="nut-pro" placeholder="目标 100" value="${tLog ? tLog.protein : ''}" inputmode="numeric"></div></div>
-      <div class="glass-card" style="background:var(--gradient-soft)"><div class="card-title">🎯 达标线</div><div class="text-secondary" style="font-size:0.85rem">热量 ≥ 2300 + 蛋白 ≥ 90g = ✅</div></div>
+      <div class="form-row"><div class="form-group"><label class="form-label">热量（大卡）</label><input type="number" class="form-input" id="nut-cal" placeholder="基础 2000" value="${tLog ? tLog.calories : ''}" inputmode="numeric"></div><div class="form-group"><label class="form-label">蛋白质（g）</label><input type="number" class="form-input" id="nut-pro" placeholder="基础 75" value="${tLog ? tLog.protein : ''}" inputmode="numeric"></div></div>
+      <div class="glass-card" style="background:var(--gradient-soft)"><div class="card-title">🎯 V4.1 达标线</div><div class="text-secondary" style="font-size:0.85rem">基础修复期：热量 ≥ 2000 + 蛋白 ≥ 75g<br>正常增肌期：热量 2300-2420 + 蛋白 100g+</div></div>
       <button class="btn btn-primary btn-full mt-md" onclick="App.saveNutrition()">✅ 保存</button>`;
     },
 
@@ -374,7 +383,7 @@ const Components = {
       </div>
       <div class="glass-card" style="background:var(--gradient-soft)">
         <div class="card-title">🎯 达标线</div>
-        <div class="text-secondary" style="font-size:0.85rem">23:30 前入睡 + 睡满 7.5h = ✅</div>
+        <div class="text-secondary" style="font-size:0.85rem">23:30 前入睡 + 睡满 7h = ✅；7.5h+ 更优</div>
       </div>
       ${prev ? `<p class="text-secondary text-center" style="font-size:0.85rem">上次：${prev.bedTime} → ${prev.wakeTime}（${prev.duration}h）</p>` : ''}
       <button class="btn btn-primary btn-full mt-md" onclick="App.saveSleep()">✅ 保存</button>`;

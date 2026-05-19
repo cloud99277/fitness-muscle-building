@@ -9,13 +9,13 @@
  */
 
 const firebaseConfig = (typeof FIREBASE_CONFIG !== 'undefined') ? FIREBASE_CONFIG : {
-    apiKey: "",
-    authDomain: "",
-    databaseURL: "",
-    projectId: "",
-    storageBucket: ".firebasestorage.app",
-    messagingSenderId: "",
-    appId: "1::web:placeholder"
+    apiKey: "AIzaSyDxvkipoUvCtRvVh82lGQY_Ffk0b76z5-U",
+    authDomain: "muscle-tracker-cloud927.firebaseapp.com",
+    databaseURL: "https://muscle-tracker-cloud927-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "muscle-tracker-cloud927",
+    storageBucket: "muscle-tracker-cloud927.firebasestorage.app",
+    messagingSenderId: "494655013393",
+    appId: "1:494655013393:web:4542f6571eb2c018fa27b0"
 };
 
 // 初始化 Firebase
